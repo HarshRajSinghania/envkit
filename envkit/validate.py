@@ -6,6 +6,11 @@ import re
 
 _UNSAFE = re.compile(r'[<>:"/\\|?*\x00-\x1f]')
 _EMAIL = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+_RESERVED = frozenset({
+    "CON", "PRN", "AUX", "NUL",
+    "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
+    "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9",
+})
 
 
 def sanitize_filename(name: str) -> str:
@@ -40,6 +45,10 @@ def sanitize_filename(name: str) -> str:
 
     if not cleaned:
         raise ValueError("文件名不能为空")
+
+    base = cleaned.split(".")[0]
+    if base.upper() in _RESERVED:
+        cleaned = "_" + cleaned
 
     return cleaned
 
