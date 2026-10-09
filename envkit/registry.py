@@ -23,6 +23,7 @@ class Registry:
     def __init__(self) -> None:
         self._factories: dict[str, Callable[..., Any]] = {}
         self._instances: dict[str, Any] = {}
+        self._instance_kwargs: dict[str, dict[str, Any]] = {}
 
     def register(self, key: str, factory: Callable[..., Any]) -> "Registry":
         """登记 ``key`` 的构建工厂；重复登记会报错。"""
@@ -51,10 +52,12 @@ class Registry:
             raise KeyError(f"未注册：{key!r}")
 
         if key in self._instances:
-            return self._instances[key]
+            if self._instance_kwargs[key] == kwargs:
+                return self._instances[key]
 
         instance = self._factories[key](**kwargs)
         self._instances[key] = instance
+        self._instance_kwargs[key] = kwargs
         return instance
 
     def snapshot(self) -> dict[str, Any]:
@@ -67,6 +70,7 @@ class Registry:
     def clear(self) -> None:
         """丢弃所有已解析实例（保留登记信息）。"""
         self._instances.clear()
+        self._instance_kwargs.clear()
 
     def __len__(self) -> int:
         return len(self._factories)
