@@ -72,7 +72,7 @@ def get_bool(
     if raw is None:
         return default
 
-    word = raw.strip()
+    word = raw.strip().lower()
     if word in _TRUE_WORDS:
         return True
     if word in _FALSE_WORDS:
