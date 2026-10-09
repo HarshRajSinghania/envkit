@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import os
 from collections.abc import Mapping
 from typing import Any
@@ -34,7 +35,7 @@ def load_settings(
         {'PORT': 8080}
     """
     source: Mapping[str, str] = os.environ if env is None else env
-    settings = dict(defaults)
+    settings = copy.deepcopy(defaults)
 
     for key in defaults:
         env_name = f"{prefix}{key}".upper()
