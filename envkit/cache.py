@@ -45,7 +45,11 @@ class TTLCache:
             self._misses += 1
             return default
 
-        value, _expires_at = entry
+        value, expires_at = entry
+        if self._clock() >= expires_at:
+            self._misses += 1
+            return default
+
         self._hits += 1
         return value
 
