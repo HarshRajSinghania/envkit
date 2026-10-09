@@ -1,6 +1,7 @@
 """容量字符串解析与格式化。"""
 
 from __future__ import annotations
+import re
 
 _UNIT_FACTORS = {
     "B": 1,
@@ -43,13 +44,17 @@ def parse_size(text: str) -> int:
     if not raw:
         raise ValueError("容量字符串不能为空")
 
-    number, _, unit = raw.partition(" ")
-    unit = unit.strip() or "B"
+    match = re.match(r"^([0-9]*\.?[0-9]+)\s*([A-Z]*)$", raw)
+    if not match:
+        raise ValueError(f"无法解析容量字符串：{text!r}")
+
+    number_str, unit = match.groups()
+    unit = unit or "B"
     unit = _UNIT_ALIASES.get(unit, unit)
     if unit not in _UNIT_FACTORS:
         raise ValueError(f"未知容量单位：{unit!r}")
 
-    return int(float(number) * _UNIT_FACTORS[unit])
+    return int(float(number_str) * _UNIT_FACTORS[unit])
 
 
 def format_size(num_bytes: int, *, unit: str = "MB") -> str:
